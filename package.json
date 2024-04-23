@@ -5,29 +5,30 @@
     "type": "module",
     "author": "Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)",
     "license": "MIT",
-    "dependencies": {
-        "@coffeekraken/s-docblock": "^0.0.1",
-        "@coffeekraken/sugar": "^0.0.1",
-        "micromatch": "^4.0.5"
+    "scripts": {
+        "dev": "tsc --watch",
+        "build": "tsc"
     },
-    "main": "dist/pkg/cjs/node/exports.js",
-    "module": "dist/pkg/esm/node/exports.js",
+    "dependencies": {
+        "@lotsof/docblock": "^0.0.1",
+        "@lotsof/sugar": "^0.0.1",
+        "micromatch": "^4.0.5",
+        "typescript": "^5.4.5"
+    },
+    "main": "dist/node/exports.js",
+    "module": "dist/node/exports.js",
     "exports": {
         ".": {
-            "require": "./dist/pkg/cjs/node/exports.js",
-            "import": "./dist/pkg/esm/node/exports.js"
+            "default": "./dist/node/exports.js"
         },
         "./shared/*": {
-            "require": "./dist/pkg/cjs/shared/*.js",
-            "import": "./dist/pkg/esm/shared/*.js"
+            "default": "./dist/shared/*.js"
         },
         "./node/*": {
-            "require": "./dist/pkg/cjs/node/*.js",
-            "import": "./dist/pkg/esm/node/*.js"
+            "default": "./dist/node/*.js"
         },
         "./js/*": {
-            "require": "./dist/pkg/cjs/js/*.js",
-            "import": "./dist/pkg/esm/js/*.js"
+            "default": "./dist/js/*.js"
         }
     },
     "homepage": "https://lotsof.dev"
