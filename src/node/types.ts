@@ -1,3 +1,5 @@
+import type { IDocblockBlock, IDocblockSettings } from '@lotsof/docblock';
+
 export interface IDocmapDefaults {
   settings: IDocmapSettings;
   read: IDocmapReadParams;
@@ -11,6 +13,8 @@ export interface IDocmapBuildParams {
   tags: string[];
   save: boolean;
   outPath: string;
+  outDir?: string;
+  mdx?: boolean;
 }
 
 export interface IDocmapReadParams {

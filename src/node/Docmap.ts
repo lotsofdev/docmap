@@ -1,4 +1,4 @@
-import type { IDocblockBlock, IDocblockSettings } from '@lotsof/docblock';
+import type { IDocblockSettings } from '@lotsof/docblock';
 import __Docblock from '@lotsof/docblock';
 import { __composerJsonSync } from '@lotsof/sugar/composer';
 import {
@@ -6,6 +6,7 @@ import {
   __fileName,
   __folderPath,
   __readJsonSync,
+  __writeFileSync,
 } from '@lotsof/sugar/fs';
 
 import { __writeJsonSync } from '@lotsof/sugar/fs';
@@ -22,11 +23,9 @@ import {
 
 import __defaults from './defaults.js';
 
-import { __commonTextFileExtensions } from '@lotsof/sugar/extension';
-
-import { globSync as __globSync } from 'glob';
 import { __packageJsonSync, __packageMetasSync } from '@lotsof/sugar/package';
 import { __packageRootDir } from '@lotsof/sugar/path';
+import { globSync as __globSync } from 'glob';
 
 import { __namespaceCompliant } from '@lotsof/sugar/string';
 import __fs from 'fs';
@@ -40,15 +39,13 @@ function __toLowerCase(l = '') {
 import type {
   IDocmap,
   IDocmapBuildParams,
-  IDocmapCustomMenuSettingFn,
   IDocmapEntries,
   IDocmapEntry,
   IDocmapMenuObj,
-  IDocmapMenuObjItem,
   IDocmapObj,
   IDocmapReadParams,
-  IDocmapSearchResult,
   IDocmapSearchParams,
+  IDocmapSearchResult,
   IDocmapSettings,
   IDocmapTagProxyFn,
 } from './types';
@@ -809,17 +806,28 @@ class Docmap implements IDocmap {
           for (let [namespace, docmapObj] of Object.entries(
             docmapJson.generated.map,
           )) {
-            const outPath = `${__path.resolve(
+            let outPath = `${__path.resolve(
               finalParams.outDir,
-              docmapObj.namespace.replace(/\./gm, '/'),
+              docmapObj.id.replace(/\./gm, '/'),
             )}.json`;
+            // mdx
+            if (finalParams.mdx) {
+              // update outpath
+              outPath = outPath.replace(/\.json$/, '.mdx');
+
+              // transform to mdx
+              const mdx = this.toMdx(docmapObj);
+              __writeFileSync(outPath, mdx);
+            } else {
+              __writeJsonSync(outPath, docmapObj);
+            }
+
             console.log(
               `<green>[save]</green> File saved <green>successfully</green> under "<cyan>${outPath.replace(
                 __packageRootDir() + '/',
                 '',
               )}</cyan>"`,
             );
-            __writeJsonSync(outPath, docmapObj);
           }
         } else if (finalParams.outPath) {
           console.log(
@@ -837,6 +845,120 @@ class Docmap implements IDocmap {
 
       resolve(docmapJson);
     });
+  }
+
+  toMdx(docmapObj: IDocmapObj): string {
+    const result: string[] = [];
+
+    result.push('<div class="docmap-mdx">');
+
+    result.push(`# ${docmapObj.name}`);
+    result.push(`<div class="_namespace">${docmapObj.namespace}</div>`);
+
+    if (docmapObj.status || docmapObj.since) {
+      result.push('<div class="_metas">');
+    }
+
+    if (docmapObj.status) {
+      result.push(
+        `<div class="_status"><span class="_status-label">Status:</span><span class="_status-value -${docmapObj.status}">${docmapObj.status}</span></div>`,
+      );
+    }
+    if (docmapObj.since) {
+      result.push(
+        `<div class="_since"><span class="_since-label">Since:</span><span class="_since-value">${docmapObj.since}</span></div>`,
+      );
+    }
+
+    if (docmapObj.status || docmapObj.since) {
+      result.push('</div>');
+    }
+
+    if (docmapObj.description) {
+      result.push('<div class="_description">');
+      result.push(docmapObj.description);
+      result.push('</div>');
+    }
+
+    if (docmapObj.param) {
+      result.push('<div class="_params">');
+      result.push('## Params');
+
+      Object.entries(docmapObj.param).forEach(([id, paramObj], i) => {
+        result.push(
+          `${i + 1}. <span class="_name">${paramObj.name}${
+            paramObj.default === undefined
+              ? '<span class="_required">*</span>'
+              : ''
+          }</span><span class="_default">${
+            paramObj.default ?? ''
+          }</span> <span class="_type">${paramObj.type.raw}</span>`,
+        );
+        result.push(`   - ${paramObj.description}`);
+      });
+      result.push('</div>');
+    }
+
+    if (docmapObj.return) {
+      result.push('<div class="_return">');
+
+      result.push(`## Return`);
+      result.push(
+        `- <span class="_description">${
+          docmapObj.return.description
+        }</span><span class="_default">${
+          docmapObj.return.default ?? ''
+        }</span><span class="_type">${docmapObj.return.type.raw}</span>`,
+      );
+
+      result.push('</div>');
+    }
+
+    if (docmapObj.example) {
+      result.push('<div class="_examples">');
+
+      result.push('## Examples');
+      docmapObj.example.forEach((exampleObj) => {
+        result.push(`\`\`\`${exampleObj.language}
+${exampleObj.code}
+\`\`\``);
+      });
+
+      result.push('</div>');
+    }
+
+    if (docmapObj.setting) {
+      result.push('<div class="_settings">');
+
+      result.push('## Settings');
+      Object.entries(docmapObj.setting).forEach(([id, settingObj], i) => {
+        result.push(
+          `${i + 1}. <span class="_name">${settingObj.name}${
+            settingObj.default === undefined
+              ? '<span class="_required">*</span>'
+              : ''
+          }</span><span class="_default">${
+            settingObj.default ?? ''
+          }</span> <span class="_type">${settingObj.type.raw}</span>`,
+        );
+      });
+
+      result.push('</div>');
+    }
+
+    if (docmapObj.author) {
+      result.push('<div class="_author">');
+      result.push(`<span class="_name">${docmapObj.author.name}</span>`);
+      result.push(`<span class="_email">${docmapObj.author.email}</span>`);
+      result.push(
+        `<a href="${docmapObj.author.url}" target="_blank" class="_url">${docmapObj.author.url}</a>`,
+      );
+      result.push('</div>');
+    }
+
+    result.push('</div>');
+
+    return result.join('\n');
   }
 }
 
