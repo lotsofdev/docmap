@@ -2,8 +2,8 @@
   "exclude": ["lotsof.config.ts", "./dist/**/*"],
   "compilerOptions": {
     "noImplicitAny": false,
-    "rootDir": "src/node",
-    "outDir": "dist/node",
+    "rootDir": "src/js",
+    "outDir": "dist/js",
     "skipLibCheck": true,
     "strict": true,
     "target": "es6",
@@ -11,6 +11,7 @@
     "sourceMap": true,
     "declaration": true,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
     "moduleResolution": "nodenext"
   }
 }
