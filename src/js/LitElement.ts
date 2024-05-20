@@ -57,6 +57,8 @@ export interface ISLitElementDefaultProps {
   saveState: boolean;
 }
 
+// up
+
 export default class LitElement extends __LitElement {
   static _keepInjectedCssBeforeStylesheetLinksInited = false;
 
