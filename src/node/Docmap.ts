@@ -852,6 +852,37 @@ class Docmap implements IDocmap {
   toMdx(docmapObj: IDocmapObj): string {
     const result: string[] = [];
 
+    result.push('---');
+    result.push(`title: '${docmapObj.name}'`);
+    result.push(`namespace: '${docmapObj.namespace}'`);
+    if (docmapObj.description) {
+      result.push(`description: ${docmapObj.description.trim}`);
+    }
+    if (docmapObj.status) {
+      result.push(`status: '${docmapObj.status}'`);
+    }
+    if (docmapObj.since) {
+      result.push(`since: '${docmapObj.since}'`);
+    }
+    if (docmapObj.platform) {
+      result.push(
+        `platform: '${JSON.stringify(
+          docmapObj.platform.sort((a, b) => a.name.localeCompare(b.name)),
+        )}'`,
+      );
+    }
+    if (docmapObj.support) {
+      result.push(
+        `support: '${JSON.stringify(
+          docmapObj.support.sort((a, b) => a.name.localeCompare(b.name)),
+        )}'`,
+      );
+    }
+    if (docmapObj.author) {
+      result.push(`author: '${JSON.stringify(docmapObj.author)}'`);
+    }
+    result.push('---');
+
     result.push('<div class="docmap-mdx">');
 
     result.push(`# ${docmapObj.name}`);
@@ -867,6 +898,11 @@ class Docmap implements IDocmap {
       );
     }
     if (docmapObj.since) {
+      result.push(
+        `<div class="_since"><span class="_since-label">Since:</span><span class="_since-value">${docmapObj.since}</span></div>`,
+      );
+    }
+    if (docmapObj.platform) {
       result.push(
         `<div class="_since"><span class="_since-label">Since:</span><span class="_since-value">${docmapObj.since}</span></div>`,
       );
