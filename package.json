@@ -1,35 +1,23 @@
 {
-    "name": "@lotsof/docmap",
-    "version": "0.0.1",
-    "description": "Powerful class that let you generate and read docmap.json file. A docmap.json file is a \"directory\" that lists all the documentation found in your code using docblocks and the \"@namespace\" tag.",
-    "type": "module",
-    "author": "Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)",
-    "license": "MIT",
-    "scripts": {
-        "dev": "tsc --watch",
-        "build": "tsc"
-    },
-    "dependencies": {
-        "@lotsof/docblock": "^0.0.1",
-        "@lotsof/sugar": "^0.0.1",
-        "micromatch": "^4.0.5",
-        "typescript": "^5.4.5"
-    },
-    "main": "dist/node/exports.js",
-    "module": "dist/node/exports.js",
-    "exports": {
-        ".": {
-            "default": "./dist/node/exports.js"
-        },
-        "./shared/*": {
-            "default": "./dist/shared/*.js"
-        },
-        "./node/*": {
-            "default": "./dist/node/*.js"
-        },
-        "./js/*": {
-            "default": "./dist/js/*.js"
-        }
-    },
-    "homepage": "https://lotsof.dev"
+  "name": "@lotsof/docmap",
+  "version": "0.0.1",
+  "description": "Powerful class that let you generate and read docmap.json file. A docmap.json file is a \"directory\" that lists all the documentation found in your code using docblocks and the \"@namespace\" tag.",
+  "type": "module",
+  "author": "Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@lotsof/docblock": "^0.0.1",
+    "@lotsof/config": "^0.0.1",
+    "@lotsof/sugar": "^0.0.1",
+    "micromatch": "^4.0.5",
+    "typescript": "^5.4.5"
+  },
+  "main": "dist/node/exports.js",
+  "module": "dist/node/exports.js",
+  "types": "src/node/exports.ts",
+  "homepage": "https://lotsof.dev"
 }

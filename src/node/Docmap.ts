@@ -1,5 +1,7 @@
 // @ts-nocheck
 
+import { __getConfig } from '@lotsof/config';
+
 import type { IDocblockSettings } from '@lotsof/docblock';
 import __Docblock from '@lotsof/docblock';
 import { __composerJsonSync } from '@lotsof/sugar/composer';
@@ -151,7 +153,11 @@ class Docmap implements IDocmap {
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
   constructor(settings?: Partial<IDocmapSettings>) {
-    this.settings = __deepMerge(__defaults.settings, settings ?? {});
+    this.settings = __deepMerge(
+      __defaults.settings,
+      __getConfig('docmap.settings') ?? {},
+      settings ?? {},
+    );
     // @ts-ignore
     this.settings.tagsProxy = {
       // @ts-ignore
@@ -181,6 +187,7 @@ class Docmap implements IDocmap {
     return new Promise(async (resolve) => {
       const finalParams: IDocmapReadParams = __deepMerge(
         __defaults.read,
+        __getConfig('docmap.read') ?? {},
         params ?? {},
       );
 
@@ -399,7 +406,11 @@ class Docmap implements IDocmap {
    */
   search(params?: Partial<IDocmapSearchParams>): Promise<IDocmapSearchResult> {
     return new Promise(async (resolve) => {
-      const finalParams: IDocmapSearchParams = __deepMerge({}, params ?? {});
+      const finalParams: IDocmapSearchParams = __deepMerge(
+        __defaults.search,
+        __getConfig('docmap.search') ?? {},
+        params ?? {},
+      );
 
       const docmapJson = await this.read(finalParams);
 
@@ -632,10 +643,11 @@ class Docmap implements IDocmap {
    * @since         2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  build(params: Partial<IDocmapBuildParams>): Promise<any> {
+  build(params?: Partial<IDocmapBuildParams>): Promise<any> {
     const finalParams: IDocmapBuildParams = __deepMerge(
       __defaults.build,
-      params,
+      __getConfig('docmap.build') ?? {},
+      params ?? {},
     );
 
     return new Promise(async (resolve) => {
@@ -804,6 +816,8 @@ class Docmap implements IDocmap {
       docmapJson.generated.map = this._entries;
 
       if (finalParams.save) {
+        // save indivudual files
+        // into the outDir
         if (finalParams.outDir) {
           for (let [namespace, docmapObj] of Object.entries(
             docmapJson.generated.map,
@@ -812,35 +826,47 @@ class Docmap implements IDocmap {
               finalParams.outDir,
               docmapObj.id.replace(/\./gm, '/'),
             )}.json`;
+
+            // json
+            if (finalParams.json) {
+              __writeJsonSync(outPath, docmapObj);
+              console.log(
+                `<green>[save]</green> JSON file saved <green>successfully</green> under "<cyan>${outPath.replace(
+                  __packageRootDir() + '/',
+                  '',
+                )}</cyan>"`,
+              );
+            }
+
             // mdx
             if (finalParams.mdx) {
               // update outpath
-              outPath = outPath.replace(/\.json$/, '.mdx');
-
+              const mdxOutPath = outPath.replace(/\.json$/, '.mdx');
               // transform to mdx
               const mdx = this.toMdx(docmapObj);
-              __writeFileSync(outPath, mdx);
-            } else {
-              __writeJsonSync(outPath, docmapObj);
+              // write to disk
+              __writeFileSync(mdxOutPath, mdx);
+              console.log(
+                `<green>[save]</green> MDX file saved <green>successfully</green> under "<cyan>${mdxOutPath.replace(
+                  __packageRootDir() + '/',
+                  '',
+                )}</cyan>"`,
+              );
             }
-
-            console.log(
-              `<green>[save]</green> File saved <green>successfully</green> under "<cyan>${outPath.replace(
-                __packageRootDir() + '/',
-                '',
-              )}</cyan>"`,
-            );
           }
-        } else if (finalParams.outPath) {
-          console.log(
-            `<green>[save]</green> File saved <green>successfully</green> under "<cyan>${finalParams.outPath.replace(
-              __packageRootDir() + '/',
-              '',
-            )}</cyan>"`,
-          );
+        }
+
+        // save the docmap.json file if wanted
+        if (finalParams.outPath) {
           __fs.writeFileSync(
             finalParams.outPath,
             JSON.stringify(docmapJson, null, 4),
+          );
+          console.log(
+            `<green>[save]</green> docmap.json file saved <green>successfully</green> under "<cyan>${finalParams.outPath.replace(
+              __packageRootDir() + '/',
+              '',
+            )}</cyan>"`,
           );
         }
       }

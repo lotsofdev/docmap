@@ -67,7 +67,9 @@ export default {
         save: true,
         outPath: `${process.cwd()}/docmap.json`,
         outDir: undefined,
+        json: true,
         mdx: false,
     },
+    search: {},
 };
 //# sourceMappingURL=defaults.js.map

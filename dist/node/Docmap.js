@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { __getConfig } from '@lotsof/config';
 import __Docblock from '@lotsof/docblock';
 import { __composerJsonSync } from '@lotsof/sugar/composer';
 import { __checkPathWithMultipleExtensions, __fileName, __folderPath, __readJsonSync, __writeFileSync, } from '@lotsof/sugar/fs';
@@ -82,6 +83,7 @@ class Docmap {
      * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
      */
     constructor(settings) {
+        var _a;
         /**
          * @name          _entries
          * @type           IDocmapEntries
@@ -93,7 +95,7 @@ class Docmap {
          * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
          */
         this._entries = {};
-        this.settings = __deepMerge(__defaults.settings, settings !== null && settings !== void 0 ? settings : {});
+        this.settings = __deepMerge(__defaults.settings, (_a = __getConfig('docmap.settings')) !== null && _a !== void 0 ? _a : {}, settings !== null && settings !== void 0 ? settings : {});
         // @ts-ignore
         this.settings.tagsProxy = Object.assign(Object.assign({}, this.constructor._registeredTagsProxy), this.settings.tagsProxy);
     }
@@ -116,8 +118,8 @@ class Docmap {
      */
     read(params) {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b, _c, _d;
-            const finalParams = __deepMerge(__defaults.read, params !== null && params !== void 0 ? params : {});
+            var _a, _b, _c, _d, _e;
+            const finalParams = __deepMerge(__defaults.read, (_a = __getConfig('docmap.read')) !== null && _a !== void 0 ? _a : {}, params !== null && params !== void 0 ? params : {});
             let docmapVersion = 'current';
             // @ts-ignore
             if (this.constructor._cachedDocmapJson[docmapVersion]) {
@@ -140,7 +142,7 @@ class Docmap {
                 menu: {},
             };
             const loadJson = (packageNameOrPath_1, ...args_1) => __awaiter(this, [packageNameOrPath_1, ...args_1], void 0, function* (packageNameOrPath, type = 'npm', isDependency = false) {
-                var _e, _f, _g, _h, _j, _k;
+                var _f, _g, _h, _j, _k, _l;
                 let currentPathDocmapJsonPath, potentialPackageDocmapJsonPath = __path.resolve(docmapRootPath, type === 'npm' ? 'node_modules' : 'vendor', packageNameOrPath, 'docmap.json'), potentialRootPackageDocmapJsonPath = __path.resolve(packageMonoRoot, type === 'npm' ? 'node_modules' : 'vendor', packageNameOrPath, 'docmap.json');
                 if (__fs.existsSync(potentialPackageDocmapJsonPath)) {
                     currentPathDocmapJsonPath = potentialPackageDocmapJsonPath;
@@ -165,14 +167,14 @@ class Docmap {
                         docmapJson.map[namespace].package = packageMetas;
                     }
                 });
-                Object.keys((_f = (_e = docmapJson.generated) === null || _e === void 0 ? void 0 : _e.map) !== null && _f !== void 0 ? _f : []).forEach((namespace) => {
+                Object.keys((_g = (_f = docmapJson.generated) === null || _f === void 0 ? void 0 : _f.map) !== null && _g !== void 0 ? _g : []).forEach((namespace) => {
                     if (docmapJson.generated.map[namespace]) {
                         docmapJson.generated.map[namespace].isDependency = isDependency;
                         docmapJson.generated.map[namespace].package = packageMetas;
                     }
                 });
                 // add the readed docmap to the existing one
-                docmapJson.map = Object.assign(Object.assign({}, ((_g = docmapJson.map) !== null && _g !== void 0 ? _g : {})), ((_j = (_h = docmapJson.generated) === null || _h === void 0 ? void 0 : _h.map) !== null && _j !== void 0 ? _j : {}));
+                docmapJson.map = Object.assign(Object.assign({}, ((_h = docmapJson.map) !== null && _h !== void 0 ? _h : {})), ((_k = (_j = docmapJson.generated) === null || _j === void 0 ? void 0 : _j.map) !== null && _k !== void 0 ? _k : {}));
                 // clean
                 delete docmapJson.generated;
                 // resolve the actual docmap "path"
@@ -183,7 +185,7 @@ class Docmap {
                     // checking ".dev...."
                     let ext = obj.relPath.split('.').pop();
                     obj.path =
-                        (_k = __checkPathWithMultipleExtensions(obj.path, [`dev.${ext}`, ext])) !== null && _k !== void 0 ? _k : obj.path;
+                        (_l = __checkPathWithMultipleExtensions(obj.path, [`dev.${ext}`, ext])) !== null && _l !== void 0 ? _l : obj.path;
                     docmapJson.map[namespace] = obj;
                 }
                 for (let [namespace, docmapObj] of Object.entries(docmapJson.map)) {
@@ -204,7 +206,7 @@ class Docmap {
             // load npm dependencies docmap
             if (finalParams.dependencies) {
                 const docmapPackageJson = __packageJsonSync(docmapJsonFolderPath);
-                const packageJsonDeps = Object.assign(Object.assign({}, ((_a = docmapPackageJson.dependencies) !== null && _a !== void 0 ? _a : {})), ((_b = docmapPackageJson.devDependencies) !== null && _b !== void 0 ? _b : {}));
+                const packageJsonDeps = Object.assign(Object.assign({}, ((_b = docmapPackageJson.dependencies) !== null && _b !== void 0 ? _b : {})), ((_c = docmapPackageJson.devDependencies) !== null && _c !== void 0 ? _c : {}));
                 for (let [depName, depVersion] of Object.entries(packageJsonDeps)) {
                     yield loadJson(depName, 'npm', true);
                 }
@@ -212,7 +214,7 @@ class Docmap {
             // load composer dependencies
             const docmapComposerJson = __composerJsonSync(docmapJsonFolderPath);
             if (finalParams.dependencies) {
-                const composerJsonDeps = Object.assign(Object.assign({}, ((_c = docmapComposerJson === null || docmapComposerJson === void 0 ? void 0 : docmapComposerJson.require) !== null && _c !== void 0 ? _c : {})), ((_d = docmapComposerJson === null || docmapComposerJson === void 0 ? void 0 : docmapComposerJson.requireDev) !== null && _d !== void 0 ? _d : {}));
+                const composerJsonDeps = Object.assign(Object.assign({}, ((_d = docmapComposerJson === null || docmapComposerJson === void 0 ? void 0 : docmapComposerJson.require) !== null && _d !== void 0 ? _d : {})), ((_e = docmapComposerJson === null || docmapComposerJson === void 0 ? void 0 : docmapComposerJson.requireDev) !== null && _e !== void 0 ? _e : {}));
                 for (let [depName, depVersion] of Object.entries(composerJsonDeps)) {
                     yield loadJson(depName, 'composer', true);
                 }
@@ -270,8 +272,8 @@ class Docmap {
      */
     search(params) {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
-            const finalParams = __deepMerge({}, params !== null && params !== void 0 ? params : {});
+            var _a, _b, _c;
+            const finalParams = __deepMerge(__defaults.search, (_a = __getConfig('docmap.search')) !== null && _a !== void 0 ? _a : {}, params !== null && params !== void 0 ? params : {});
             const docmapJson = yield this.read(finalParams);
             const result = {
                 search: finalParams,
@@ -292,7 +294,7 @@ class Docmap {
                     let valueToCheck = item[prop];
                     if (prop === 'type') {
                         // @ts-ignore
-                        valueToCheck = (_b = (_a = item.type) === null || _a === void 0 ? void 0 : _a.raw) !== null && _b !== void 0 ? _b : item.type;
+                        valueToCheck = (_c = (_b = item.type) === null || _b === void 0 ? void 0 : _b.raw) !== null && _c !== void 0 ? _c : item.type;
                     }
                     if (finalParams[prop].match(/^\/.*\/$/)) {
                         itemMatch = new RegExp(finalParams[prop].slice(1, -1)).test(valueToCheck.toLowerCase());
@@ -451,9 +453,10 @@ class Docmap {
      * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
      */
     build(params) {
-        const finalParams = __deepMerge(__defaults.build, params);
+        var _a;
+        const finalParams = __deepMerge(__defaults.build, (_a = __getConfig('docmap.build')) !== null && _a !== void 0 ? _a : {}, params !== null && params !== void 0 ? params : {});
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _b;
             let docmapJson = {
                 map: {},
                 generated: {
@@ -515,7 +518,7 @@ class Docmap {
                         // if the "toString" method is a custom one
                         // calling it to have the proper string value back
                         if (typeof value !== 'string' &&
-                            ((_a = value.toString) === null || _a === void 0 ? void 0 : _a.call(value)) !== '[object Object]') {
+                            ((_b = value.toString) === null || _b === void 0 ? void 0 : _b.call(value)) !== '[object Object]') {
                             value = value.toString();
                         }
                         // check if the value match the filter or not
@@ -573,26 +576,32 @@ class Docmap {
             // save entries inside the json map property
             docmapJson.generated.map = this._entries;
             if (finalParams.save) {
+                // save indivudual files
+                // into the outDir
                 if (finalParams.outDir) {
                     for (let [namespace, docmapObj] of Object.entries(docmapJson.generated.map)) {
                         let outPath = `${__path.resolve(finalParams.outDir, docmapObj.id.replace(/\./gm, '/'))}.json`;
+                        // json
+                        if (finalParams.json) {
+                            __writeJsonSync(outPath, docmapObj);
+                            console.log(`<green>[save]</green> JSON file saved <green>successfully</green> under "<cyan>${outPath.replace(__packageRootDir() + '/', '')}</cyan>"`);
+                        }
                         // mdx
                         if (finalParams.mdx) {
                             // update outpath
-                            outPath = outPath.replace(/\.json$/, '.mdx');
+                            const mdxOutPath = outPath.replace(/\.json$/, '.mdx');
                             // transform to mdx
                             const mdx = this.toMdx(docmapObj);
-                            __writeFileSync(outPath, mdx);
+                            // write to disk
+                            __writeFileSync(mdxOutPath, mdx);
+                            console.log(`<green>[save]</green> MDX file saved <green>successfully</green> under "<cyan>${mdxOutPath.replace(__packageRootDir() + '/', '')}</cyan>"`);
                         }
-                        else {
-                            __writeJsonSync(outPath, docmapObj);
-                        }
-                        console.log(`<green>[save]</green> File saved <green>successfully</green> under "<cyan>${outPath.replace(__packageRootDir() + '/', '')}</cyan>"`);
                     }
                 }
-                else if (finalParams.outPath) {
-                    console.log(`<green>[save]</green> File saved <green>successfully</green> under "<cyan>${finalParams.outPath.replace(__packageRootDir() + '/', '')}</cyan>"`);
+                // save the docmap.json file if wanted
+                if (finalParams.outPath) {
                     __fs.writeFileSync(finalParams.outPath, JSON.stringify(docmapJson, null, 4));
+                    console.log(`<green>[save]</green> docmap.json file saved <green>successfully</green> under "<cyan>${finalParams.outPath.replace(__packageRootDir() + '/', '')}</cyan>"`);
                 }
             }
             resolve(docmapJson);

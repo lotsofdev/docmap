@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import type { IDocmapDefaults } from './types.js';
+import type { IDocmapConfig } from './types.js';
 
 import { __commonTextFileExtensions } from '@lotsof/sugar/extension';
 
@@ -73,6 +73,8 @@ export default {
     save: true,
     outPath: `${process.cwd()}/docmap.json`,
     outDir: undefined,
+    json: true,
     mdx: false,
   },
-} as IDocmapDefaults;
+  search: {},
+} as IDocmapConfig;
