@@ -456,7 +456,7 @@ class Docmap {
         var _a;
         const finalParams = __deepMerge(__defaults.build, (_a = __getConfig('docmap.build')) !== null && _a !== void 0 ? _a : {}, params !== null && params !== void 0 ? params : {});
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            var _b;
+            var _b, _c, _d;
             let docmapJson = {
                 map: {},
                 generated: {
@@ -487,10 +487,7 @@ class Docmap {
                 console.log(`<yellow>[build]</yellow> Parsing file "<cyan>${__path.relative(__packageRootDir(), 
                 // @ts-ignore
                 filePath)}</cyan>"`);
-                const docblocksInstance = new __Docblock(filePath, {
-                    renderMarkdown: false,
-                    filepath: filePath,
-                });
+                const docblocksInstance = new __Docblock(filePath, Object.assign(Object.assign({}, ((_c = (_b = this.settings.docblock) === null || _b === void 0 ? void 0 : _b.settings) !== null && _c !== void 0 ? _c : {})), { filepath: filePath }));
                 yield docblocksInstance.parse();
                 const docblocks = docblocksInstance.toObject();
                 if (!docblocks || !docblocks.length)
@@ -518,7 +515,7 @@ class Docmap {
                         // if the "toString" method is a custom one
                         // calling it to have the proper string value back
                         if (typeof value !== 'string' &&
-                            ((_b = value.toString) === null || _b === void 0 ? void 0 : _b.call(value)) !== '[object Object]') {
+                            ((_d = value.toString) === null || _d === void 0 ? void 0 : _d.call(value)) !== '[object Object]') {
                             value = value.toString();
                         }
                         // check if the value match the filter or not
@@ -608,13 +605,19 @@ class Docmap {
         }));
     }
     toMdx(docmapObj) {
-        var _a;
+        var _a, _b, _c, _d;
         const result = [];
+        if (docmapObj.name === 'media') {
+            console.log(docmapObj);
+        }
         result.push('---');
         result.push(`title: '${docmapObj.name}'`);
         result.push(`namespace: '${docmapObj.namespace}'`);
         if (docmapObj.description) {
             result.push(`description: ${docmapObj.description.trim}`);
+        }
+        if (docmapObj.type) {
+            result.push(`type: '${(_a = docmapObj.type.raw) !== null && _a !== void 0 ? _a : docmapObj.type}'`);
         }
         if (docmapObj.status) {
             result.push(`status: '${docmapObj.status}'`);
@@ -638,6 +641,9 @@ class Docmap {
         if (docmapObj.status || docmapObj.since) {
             result.push('<div class="_metas">');
         }
+        if (docmapObj.type) {
+            result.push(`<div class="_type"><span class="_type-label">Type:</span><span class="_type-value">${(_b = docmapObj.type.raw) !== null && _b !== void 0 ? _b : docmapObj.type}</span></div>`);
+        }
         if (docmapObj.status) {
             result.push(`<div class="_status"><span class="_status-label">Status:</span><span class="_status-value -${docmapObj.status}">${docmapObj.status}</span></div>`);
         }
@@ -645,7 +651,7 @@ class Docmap {
             result.push(`<div class="_since"><span class="_since-label">Since:</span><span class="_since-value">${docmapObj.since}</span></div>`);
         }
         if (docmapObj.platform) {
-            result.push(`<div class="_since"><span class="_since-label">Since:</span><span class="_since-value">${docmapObj.since}</span></div>`);
+            result.push(`<div class="_platform"><span class="_platform-label">Platform:</span>${docmapObj.platform.map((p) => `<span class="_platform-value">${p.name}</span>`)}</div>`);
         }
         if (docmapObj.status || docmapObj.since) {
             result.push('</div>');
@@ -658,22 +664,30 @@ class Docmap {
         if (docmapObj.param) {
             result.push('<div class="_params">');
             result.push('## Params');
+            result.push(`<ol class="_list">`);
             Object.entries(docmapObj.param).forEach(([id, paramObj], i) => {
                 var _a;
-                result.push(`${i + 1}. <span class="_name">${paramObj.name}${paramObj.default === undefined
+                result.push('<li class="_item">');
+                result.push(`<span class="_name">${paramObj.name}${paramObj.default === undefined
                     ? '<span class="_required">*</span>'
                     : ''}</span><span class="_default">${(_a = paramObj.default) !== null && _a !== void 0 ? _a : ''}</span> <span class="_type">${paramObj.type.raw}</span>`);
-                result.push(`   - ${paramObj.description}`);
+                result.push(`<p class="_description">${paramObj.description}</p>`);
+                result.push('</li>');
             });
+            result.push('</ol>');
             result.push('</div>');
         }
         if (docmapObj.return) {
             result.push('<div class="_return">');
             result.push(`## Return`);
-            result.push(`- <span class="_description">${docmapObj.return.description}</span><span class="_default">${(_a = docmapObj.return.default) !== null && _a !== void 0 ? _a : ''}</span><span class="_type">${docmapObj.return.type.raw}</span>`);
+            result.push('<ol class="_list">');
+            result.push('<li class="_item">');
+            result.push(`<span class="_description">${docmapObj.return.description}</span><span class="_default">${(_c = docmapObj.return.default) !== null && _c !== void 0 ? _c : ''}</span><span class="_type">${docmapObj.return.type.raw}</span>`);
+            result.push('</li>');
+            result.push('</ol>');
             result.push('</div>');
         }
-        if (docmapObj.example) {
+        if ((_d = docmapObj.example) === null || _d === void 0 ? void 0 : _d.length) {
             result.push('<div class="_examples">');
             result.push('## Examples');
             docmapObj.example.forEach((exampleObj) => {
@@ -694,11 +708,53 @@ ${exampleObj.code}
             });
             result.push('</div>');
         }
+        if (docmapObj.todo) {
+            result.push('<div class="_todo">');
+            result.push(`## Todo`);
+            result.push('<ul class="_list">');
+            docmapObj.todo.forEach((todo) => {
+                result.push('<li class="_item">');
+                result.push(`<span class="_description">${todo.description}</span>`);
+                if (todo.priority) {
+                    result.push(`<span class="_priority -${todo.priority}">${todo.priority}</span>`);
+                }
+                result.push('</li>');
+            });
+            result.push('</ul>');
+            result.push('</div>');
+        }
         if (docmapObj.author) {
             result.push('<div class="_author">');
+            result.push('## Author');
+            result.push('<ul class="_list">');
+            result.push('<li class="_item">');
             result.push(`<span class="_name">${docmapObj.author.name}</span>`);
-            result.push(`<span class="_email">${docmapObj.author.email}</span>`);
-            result.push(`<a href="${docmapObj.author.url}" target="_blank" class="_url">${docmapObj.author.url}</a>`);
+            if (docmapObj.author.email) {
+                result.push(`<span class="_email">${docmapObj.author.email}</span>`);
+            }
+            if (docmapObj.author.url) {
+                result.push(`<a href="${docmapObj.author.url}" target="_blank" class="_url">${docmapObj.author.url}</a>`);
+            }
+            result.push('</li>');
+            result.push('</ul>');
+            result.push('</div>');
+        }
+        if (docmapObj.contributor) {
+            result.push('<div class="_contributors">');
+            result.push(`## Contributor${docmapObj.contributor.length > 1 ? 's' : ''}`);
+            result.push('<ul class="_list">');
+            docmapObj.contributor.forEach((contributorObj) => {
+                result.push('<li class="_item">');
+                result.push(`<span class="_name">${contributorObj.name}</span>`);
+                if (contributorObj.email) {
+                    result.push(`<span class="_email">${contributorObj.email}</span>`);
+                }
+                if (contributorObj.url) {
+                    result.push(`<a href="${contributorObj.url}" target="_blank" class="_url">${contributorObj.url}</a>`);
+                }
+                result.push('</li>');
+            });
+            result.push('</ul>');
             result.push('</div>');
         }
         result.push('</div>');

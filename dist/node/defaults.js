@@ -23,6 +23,7 @@ export default {
                 return false;
             },
         },
+        docblock: {},
     },
     read: {
         input: `${process.cwd()}/docmap.json`,
@@ -62,6 +63,7 @@ export default {
             'async',
             'static',
             'since',
+            'todo',
             'author',
         ],
         save: true,

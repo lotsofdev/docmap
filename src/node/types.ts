@@ -1,4 +1,4 @@
-import type { IDocblockBlock, IDocblockSettings } from '@lotsof/docblock';
+import type { IDocblockSettings } from '@lotsof/docblock';
 
 export interface IDocmapConfig {
   settings: IDocmapSettings;
@@ -37,6 +37,7 @@ export interface IDocmapCustomMenuSettingFn {
 export interface IDocmapSettings {
   customMenu: Record<string, IDocmapCustomMenuSettingFn>;
   tagsProxy: Record<string, IDocmapTagProxyFn>;
+  docblock?: IDocblockSettings;
 }
 
 export interface IDocmapEntry {

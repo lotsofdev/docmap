@@ -698,7 +698,7 @@ class Docmap implements IDocmap {
         );
 
         const docblocksInstance = new __Docblock(filePath, {
-          renderMarkdown: false,
+          ...(this.settings.docblock?.settings ?? {}),
           filepath: filePath,
         });
 
@@ -878,11 +878,18 @@ class Docmap implements IDocmap {
   toMdx(docmapObj: IDocmapObj): string {
     const result: string[] = [];
 
+    if (docmapObj.name === 'media') {
+      console.log(docmapObj);
+    }
+
     result.push('---');
     result.push(`title: '${docmapObj.name}'`);
     result.push(`namespace: '${docmapObj.namespace}'`);
     if (docmapObj.description) {
       result.push(`description: ${docmapObj.description.trim}`);
+    }
+    if (docmapObj.type) {
+      result.push(`type: '${docmapObj.type.raw ?? docmapObj.type}'`);
     }
     if (docmapObj.status) {
       result.push(`status: '${docmapObj.status}'`);
@@ -918,6 +925,13 @@ class Docmap implements IDocmap {
       result.push('<div class="_metas">');
     }
 
+    if (docmapObj.type) {
+      result.push(
+        `<div class="_type"><span class="_type-label">Type:</span><span class="_type-value">${
+          docmapObj.type.raw ?? docmapObj.type
+        }</span></div>`,
+      );
+    }
     if (docmapObj.status) {
       result.push(
         `<div class="_status"><span class="_status-label">Status:</span><span class="_status-value -${docmapObj.status}">${docmapObj.status}</span></div>`,
@@ -930,7 +944,9 @@ class Docmap implements IDocmap {
     }
     if (docmapObj.platform) {
       result.push(
-        `<div class="_since"><span class="_since-label">Since:</span><span class="_since-value">${docmapObj.since}</span></div>`,
+        `<div class="_platform"><span class="_platform-label">Platform:</span>${docmapObj.platform.map(
+          (p) => `<span class="_platform-value">${p.name}</span>`,
+        )}</div>`,
       );
     }
 
@@ -948,9 +964,11 @@ class Docmap implements IDocmap {
       result.push('<div class="_params">');
       result.push('## Params');
 
+      result.push(`<ol class="_list">`);
       Object.entries(docmapObj.param).forEach(([id, paramObj], i) => {
+        result.push('<li class="_item">');
         result.push(
-          `${i + 1}. <span class="_name">${paramObj.name}${
+          `<span class="_name">${paramObj.name}${
             paramObj.default === undefined
               ? '<span class="_required">*</span>'
               : ''
@@ -958,8 +976,11 @@ class Docmap implements IDocmap {
             paramObj.default ?? ''
           }</span> <span class="_type">${paramObj.type.raw}</span>`,
         );
-        result.push(`   - ${paramObj.description}`);
+        result.push(`<p class="_description">${paramObj.description}</p>`);
+        result.push('</li>');
       });
+      result.push('</ol>');
+
       result.push('</div>');
     }
 
@@ -967,18 +988,23 @@ class Docmap implements IDocmap {
       result.push('<div class="_return">');
 
       result.push(`## Return`);
+
+      result.push('<ol class="_list">');
+      result.push('<li class="_item">');
       result.push(
-        `- <span class="_description">${
+        `<span class="_description">${
           docmapObj.return.description
         }</span><span class="_default">${
           docmapObj.return.default ?? ''
         }</span><span class="_type">${docmapObj.return.type.raw}</span>`,
       );
+      result.push('</li>');
+      result.push('</ol>');
 
       result.push('</div>');
     }
 
-    if (docmapObj.example) {
+    if (docmapObj.example?.length) {
       result.push('<div class="_examples">');
 
       result.push('## Examples');
@@ -1010,13 +1036,72 @@ ${exampleObj.code}
       result.push('</div>');
     }
 
+    if (docmapObj.todo) {
+      result.push('<div class="_todo">');
+
+      result.push(`## Todo`);
+
+      result.push('<ul class="_list">');
+      docmapObj.todo.forEach((todo) => {
+        result.push('<li class="_item">');
+        result.push(`<span class="_description">${todo.description}</span>`);
+        if (todo.priority) {
+          result.push(
+            `<span class="_priority -${todo.priority}">${todo.priority}</span>`,
+          );
+        }
+        result.push('</li>');
+      });
+      result.push('</ul>');
+
+      result.push('</div>');
+    }
+
     if (docmapObj.author) {
       result.push('<div class="_author">');
+
+      result.push('## Author');
+
+      result.push('<ul class="_list">');
+      result.push('<li class="_item">');
       result.push(`<span class="_name">${docmapObj.author.name}</span>`);
-      result.push(`<span class="_email">${docmapObj.author.email}</span>`);
+      if (docmapObj.author.email) {
+        result.push(`<span class="_email">${docmapObj.author.email}</span>`);
+      }
+      if (docmapObj.author.url) {
+        result.push(
+          `<a href="${docmapObj.author.url}" target="_blank" class="_url">${docmapObj.author.url}</a>`,
+        );
+      }
+      result.push('</li>');
+      result.push('</ul>');
+
+      result.push('</div>');
+    }
+
+    if (docmapObj.contributor) {
+      result.push('<div class="_contributors">');
+
       result.push(
-        `<a href="${docmapObj.author.url}" target="_blank" class="_url">${docmapObj.author.url}</a>`,
+        `## Contributor${docmapObj.contributor.length > 1 ? 's' : ''}`,
       );
+
+      result.push('<ul class="_list">');
+      docmapObj.contributor.forEach((contributorObj) => {
+        result.push('<li class="_item">');
+        result.push(`<span class="_name">${contributorObj.name}</span>`);
+        if (contributorObj.email) {
+          result.push(`<span class="_email">${contributorObj.email}</span>`);
+        }
+        if (contributorObj.url) {
+          result.push(
+            `<a href="${contributorObj.url}" target="_blank" class="_url">${contributorObj.url}</a>`,
+          );
+        }
+        result.push('</li>');
+      });
+      result.push('</ul>');
+
       result.push('</div>');
     }
 
