@@ -455,6 +455,7 @@ class Docmap {
     build(params) {
         var _a;
         const finalParams = __deepMerge(__defaults.build, (_a = __getConfig('docmap.build')) !== null && _a !== void 0 ? _a : {}, params !== null && params !== void 0 ? params : {});
+        console.log(finalParams);
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
             var _b, _c, _d;
             let docmapJson = {
@@ -476,6 +477,23 @@ class Docmap {
                 };
             }
             console.log(`<yellow>[build]</yellow> Building map by searching for files inside the current package`);
+            // clear if needed
+            if (finalParams.clear) {
+                if (finalParams.outDir) {
+                    try {
+                        __fs.rmSync(finalParams.outDir, {
+                            recursive: true,
+                        });
+                    }
+                    catch (e) { }
+                }
+                if (typeof finalParams.outPath === 'string') {
+                    try {
+                        __fs.rmSync(finalParams.outPath);
+                    }
+                    catch (e) { }
+                }
+            }
             // searching inside the current package for docblocks to use
             const filesInPackage = __globSync(finalParams.globs, {
                 cwd: packageRoot,
@@ -575,18 +593,24 @@ class Docmap {
             if (finalParams.save) {
                 // save indivudual files
                 // into the outDir
-                if (finalParams.outDir) {
+                if (finalParams.outDir || typeof finalParams.outPath === 'function') {
                     for (let [namespace, docmapObj] of Object.entries(docmapJson.generated.map)) {
-                        let outPath = `${__path.resolve(finalParams.outDir, docmapObj.id.replace(/\./gm, '/'))}.json`;
+                        let finalOutPath;
+                        if (typeof finalParams.outPath === 'function') {
+                            finalOutPath = finalParams.outPath(docmapObj, this.settings);
+                        }
+                        else {
+                            finalOutPath = `${__path.resolve(finalParams.outDir, docmapObj.id.replace(/\./gm, '/'))}.json`;
+                        }
                         // json
                         if (finalParams.json) {
-                            __writeJsonSync(outPath, docmapObj);
+                            __writeJsonSync(finalOutPath, docmapObj);
                             console.log(`<green>[save]</green> JSON file saved <green>successfully</green> under "<cyan>${outPath.replace(__packageRootDir() + '/', '')}</cyan>"`);
                         }
                         // mdx
                         if (finalParams.mdx) {
                             // update outpath
-                            const mdxOutPath = outPath.replace(/\.json$/, '.mdx');
+                            const mdxOutPath = finalOutPath.replace(/\.json$/, '.mdx');
                             // transform to mdx
                             const mdx = this.toMdx(docmapObj);
                             // write to disk
@@ -596,7 +620,7 @@ class Docmap {
                     }
                 }
                 // save the docmap.json file if wanted
-                if (finalParams.outPath) {
+                if (typeof finalParams.outPath === 'string') {
                     __fs.writeFileSync(finalParams.outPath, JSON.stringify(docmapJson, null, 4));
                     console.log(`<green>[save]</green> docmap.json file saved <green>successfully</green> under "<cyan>${finalParams.outPath.replace(__packageRootDir() + '/', '')}</cyan>"`);
                 }
@@ -637,8 +661,7 @@ class Docmap {
         result.push('---');
         result.push('<div class="docmap-mdx">');
         result.push(`# ${docmapObj.name}`);
-        result.push(`<div class="_namespace">${docmapObj.namespace}</div>`);
-        if (docmapObj.status || docmapObj.since) {
+        if (docmapObj.status || docmapObj.since || docmapObj.platform) {
             result.push('<div class="_metas">');
         }
         if (docmapObj.type) {
@@ -653,9 +676,10 @@ class Docmap {
         if (docmapObj.platform) {
             result.push(`<div class="_platform"><span class="_platform-label">Platform:</span>${docmapObj.platform.map((p) => `<span class="_platform-value">${p.name}</span>`)}</div>`);
         }
-        if (docmapObj.status || docmapObj.since) {
+        if (docmapObj.status || docmapObj.since || docmapObj.platform) {
             result.push('</div>');
         }
+        result.push(`<div class="_namespace">${docmapObj.namespace}</div>`);
         if (docmapObj.description) {
             result.push('<div class="_description">');
             result.push(docmapObj.description);
@@ -689,7 +713,7 @@ class Docmap {
         }
         if ((_d = docmapObj.example) === null || _d === void 0 ? void 0 : _d.length) {
             result.push('<div class="_examples">');
-            result.push('## Examples');
+            result.push(`## Example${docmapObj.example.length > 1 ? 's' : ''}`);
             docmapObj.example.forEach((exampleObj) => {
                 result.push(`\`\`\`${exampleObj.language}
 ${exampleObj.code}

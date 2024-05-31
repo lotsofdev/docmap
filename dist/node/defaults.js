@@ -34,8 +34,8 @@ export default {
     build: {
         globs: [
             '*',
-            `src/!(css)/**/*.+(${__commonTextFileExtensions({}).join('|')})`,
-            `dist/+(css)/*`,
+            `src/**/*.+(${__commonTextFileExtensions({}).join('|')})`,
+            // `dist/+(css)/*`,
         ],
         exclude: [],
         excludeByTags: {
@@ -71,6 +71,7 @@ export default {
         outDir: undefined,
         json: true,
         mdx: false,
+        clear: true,
     },
     search: {},
 };

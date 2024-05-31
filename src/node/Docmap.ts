@@ -650,6 +650,8 @@ class Docmap implements IDocmap {
       params ?? {},
     );
 
+    console.log(finalParams);
+
     return new Promise(async (resolve) => {
       let docmapJson = {
         map: {},
@@ -675,6 +677,22 @@ class Docmap implements IDocmap {
       console.log(
         `<yellow>[build]</yellow> Building map by searching for files inside the current package`,
       );
+
+      // clear if needed
+      if (finalParams.clear) {
+        if (finalParams.outDir) {
+          try {
+            __fs.rmSync(finalParams.outDir, {
+              recursive: true,
+            });
+          } catch (e) {}
+        }
+        if (typeof finalParams.outPath === 'string') {
+          try {
+            __fs.rmSync(finalParams.outPath);
+          } catch (e) {}
+        }
+      }
 
       // searching inside the current package for docblocks to use
       const filesInPackage = __globSync(finalParams.globs, {
@@ -818,18 +836,24 @@ class Docmap implements IDocmap {
       if (finalParams.save) {
         // save indivudual files
         // into the outDir
-        if (finalParams.outDir) {
+        if (finalParams.outDir || typeof finalParams.outPath === 'function') {
           for (let [namespace, docmapObj] of Object.entries(
             docmapJson.generated.map,
           )) {
-            let outPath = `${__path.resolve(
-              finalParams.outDir,
-              docmapObj.id.replace(/\./gm, '/'),
-            )}.json`;
+            let finalOutPath;
+
+            if (typeof finalParams.outPath === 'function') {
+              finalOutPath = finalParams.outPath(docmapObj, this.settings);
+            } else {
+              finalOutPath = `${__path.resolve(
+                finalParams.outDir,
+                docmapObj.id.replace(/\./gm, '/'),
+              )}.json`;
+            }
 
             // json
             if (finalParams.json) {
-              __writeJsonSync(outPath, docmapObj);
+              __writeJsonSync(finalOutPath, docmapObj);
               console.log(
                 `<green>[save]</green> JSON file saved <green>successfully</green> under "<cyan>${outPath.replace(
                   __packageRootDir() + '/',
@@ -841,7 +865,7 @@ class Docmap implements IDocmap {
             // mdx
             if (finalParams.mdx) {
               // update outpath
-              const mdxOutPath = outPath.replace(/\.json$/, '.mdx');
+              const mdxOutPath = finalOutPath.replace(/\.json$/, '.mdx');
               // transform to mdx
               const mdx = this.toMdx(docmapObj);
               // write to disk
@@ -857,7 +881,7 @@ class Docmap implements IDocmap {
         }
 
         // save the docmap.json file if wanted
-        if (finalParams.outPath) {
+        if (typeof finalParams.outPath === 'string') {
           __fs.writeFileSync(
             finalParams.outPath,
             JSON.stringify(docmapJson, null, 4),
@@ -919,12 +943,10 @@ class Docmap implements IDocmap {
     result.push('<div class="docmap-mdx">');
 
     result.push(`# ${docmapObj.name}`);
-    result.push(`<div class="_namespace">${docmapObj.namespace}</div>`);
 
-    if (docmapObj.status || docmapObj.since) {
+    if (docmapObj.status || docmapObj.since || docmapObj.platform) {
       result.push('<div class="_metas">');
     }
-
     if (docmapObj.type) {
       result.push(
         `<div class="_type"><span class="_type-label">Type:</span><span class="_type-value">${
@@ -949,10 +971,11 @@ class Docmap implements IDocmap {
         )}</div>`,
       );
     }
-
-    if (docmapObj.status || docmapObj.since) {
+    if (docmapObj.status || docmapObj.since || docmapObj.platform) {
       result.push('</div>');
     }
+
+    result.push(`<div class="_namespace">${docmapObj.namespace}</div>`);
 
     if (docmapObj.description) {
       result.push('<div class="_description">');
@@ -1007,7 +1030,7 @@ class Docmap implements IDocmap {
     if (docmapObj.example?.length) {
       result.push('<div class="_examples">');
 
-      result.push('## Examples');
+      result.push(`## Example${docmapObj.example.length > 1 ? 's' : ''}`);
       docmapObj.example.forEach((exampleObj) => {
         result.push(`\`\`\`${exampleObj.language}
 ${exampleObj.code}

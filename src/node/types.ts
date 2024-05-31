@@ -1,4 +1,4 @@
-import type { IDocblockSettings } from '@lotsof/docblock';
+import type { IDocblockSettings, IDocblockBlock } from '@lotsof/docblock';
 
 export interface IDocmapConfig {
   settings: IDocmapSettings;
@@ -7,16 +7,21 @@ export interface IDocmapConfig {
   search: IDocmapSearchParams;
 }
 
+export type IDocmapBuildOutPathParam =
+  | string
+  | ((docmapObj: IDocmapObj, settings: IDocmapSettings) => string);
+
 export interface IDocmapBuildParams {
   globs: string[];
   exclude: string[];
   excludeByTags: Record<string, RegExp[]>;
   tags: string[];
   save: boolean;
-  outPath: string;
+  outPath: IDocmapBuildOutPathParam;
   outDir?: string;
   mdx?: boolean;
   json?: boolean;
+  clear?: boolean;
 }
 
 export interface IDocmapReadParams {
