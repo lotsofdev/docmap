@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { __getConfig } from '@lotsof/config';
+import { __encodeEntities } from '@lotsof/sugar/html';
 import __Docblock from '@lotsof/docblock';
 import { __composerJsonSync } from '@lotsof/sugar/composer';
 import { __checkPathWithMultipleExtensions, __fileName, __folderPath, __readJsonSync, __writeFileSync, } from '@lotsof/sugar/fs';
@@ -629,19 +630,24 @@ class Docmap {
         }));
     }
     toMdx(docmapObj) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f;
         const result = [];
-        if (docmapObj.name === 'media') {
-            console.log(docmapObj);
+        function encodeEntities(str) {
+            if (typeof str !== 'string') {
+                str = `${str}`;
+            }
+            return __encodeEntities(str);
         }
         result.push('---');
         result.push(`title: '${docmapObj.name}'`);
         result.push(`namespace: '${docmapObj.namespace}'`);
-        if (docmapObj.description) {
-            result.push(`description: ${docmapObj.description.trim}`);
-        }
+        // if (docmapObj.description) {
+        //   result.push(
+        //     `description: '${docmapObj.description.split('\n').join(' ')}'`,
+        //   );
+        // }
         if (docmapObj.type) {
-            result.push(`type: '${(_a = docmapObj.type.raw) !== null && _a !== void 0 ? _a : docmapObj.type}'`);
+            result.push(`type: '${encodeEntities((_a = docmapObj.type.raw) !== null && _a !== void 0 ? _a : '')}'`);
         }
         if (docmapObj.status) {
             result.push(`status: '${docmapObj.status}'`);
@@ -665,7 +671,7 @@ class Docmap {
             result.push('<div class="_metas">');
         }
         if (docmapObj.type) {
-            result.push(`<div class="_type"><span class="_type-label">Type:</span><span class="_type-value">${(_b = docmapObj.type.raw) !== null && _b !== void 0 ? _b : docmapObj.type}</span></div>`);
+            result.push(`<div class="_type"><span class="_type-label">Type:</span><span class="_type-value">${encodeEntities((_c = (_b = docmapObj.type.raw) !== null && _b !== void 0 ? _b : docmapObj.type) !== null && _c !== void 0 ? _c : '')}</span></div>`);
         }
         if (docmapObj.status) {
             result.push(`<div class="_status"><span class="_status-label">Status:</span><span class="_status-value -${docmapObj.status}">${docmapObj.status}</span></div>`);
@@ -674,7 +680,9 @@ class Docmap {
             result.push(`<div class="_since"><span class="_since-label">Since:</span><span class="_since-value">${docmapObj.since}</span></div>`);
         }
         if (docmapObj.platform) {
-            result.push(`<div class="_platform"><span class="_platform-label">Platform:</span>${docmapObj.platform.map((p) => `<span class="_platform-value">${p.name}</span>`)}</div>`);
+            result.push(`<div class="_platform"><span class="_platform-label">Platform:</span>${docmapObj.platform
+                .map((p) => `<span class="_platform-value -${p.name}">${p.name}</span>`)
+                .join('')}</div>`);
         }
         if (docmapObj.status || docmapObj.since || docmapObj.platform) {
             result.push('</div>');
@@ -690,12 +698,12 @@ class Docmap {
             result.push('## Params');
             result.push(`<ol class="_list">`);
             Object.entries(docmapObj.param).forEach(([id, paramObj], i) => {
-                var _a;
+                var _a, _b, _c;
                 result.push('<li class="_item">');
                 result.push(`<span class="_name">${paramObj.name}${paramObj.default === undefined
                     ? '<span class="_required">*</span>'
-                    : ''}</span><span class="_default">${(_a = paramObj.default) !== null && _a !== void 0 ? _a : ''}</span> <span class="_type">${paramObj.type.raw}</span>`);
-                result.push(`<p class="_description">${paramObj.description}</p>`);
+                    : ''}</span><span class="_default">${encodeEntities((_a = paramObj.default) !== null && _a !== void 0 ? _a : '')}</span> <span class="_type">${encodeEntities((_b = paramObj.type.raw) !== null && _b !== void 0 ? _b : '')}</span>`);
+                result.push(`<p class="_description">${encodeEntities((_c = paramObj.description) !== null && _c !== void 0 ? _c : '')}</p>`);
                 result.push('</li>');
             });
             result.push('</ol>');
@@ -706,12 +714,12 @@ class Docmap {
             result.push(`## Return`);
             result.push('<ol class="_list">');
             result.push('<li class="_item">');
-            result.push(`<span class="_description">${docmapObj.return.description}</span><span class="_default">${(_c = docmapObj.return.default) !== null && _c !== void 0 ? _c : ''}</span><span class="_type">${docmapObj.return.type.raw}</span>`);
+            result.push(`<span class="_description">${docmapObj.return.description}</span><span class="_default">${(_d = docmapObj.return.default) !== null && _d !== void 0 ? _d : ''}</span><span class="_type">${encodeEntities((_e = docmapObj.return.type.raw) !== null && _e !== void 0 ? _e : '')}</span>`);
             result.push('</li>');
             result.push('</ol>');
             result.push('</div>');
         }
-        if ((_d = docmapObj.example) === null || _d === void 0 ? void 0 : _d.length) {
+        if ((_f = docmapObj.example) === null || _f === void 0 ? void 0 : _f.length) {
             result.push('<div class="_examples">');
             result.push(`## Example${docmapObj.example.length > 1 ? 's' : ''}`);
             docmapObj.example.forEach((exampleObj) => {
@@ -724,12 +732,17 @@ ${exampleObj.code}
         if (docmapObj.setting) {
             result.push('<div class="_settings">');
             result.push('## Settings');
+            result.push(`<ol class="_list">`);
             Object.entries(docmapObj.setting).forEach(([id, settingObj], i) => {
-                var _a;
-                result.push(`${i + 1}. <span class="_name">${settingObj.name}${settingObj.default === undefined
+                var _a, _b;
+                result.push('<li class="_item">');
+                result.push(`<span class="_name">${settingObj.name}${settingObj.default === undefined
                     ? '<span class="_required">*</span>'
-                    : ''}</span><span class="_default">${(_a = settingObj.default) !== null && _a !== void 0 ? _a : ''}</span> <span class="_type">${settingObj.type.raw}</span>`);
+                    : ''}</span><span class="_default">${encodeEntities((_a = settingObj.default) !== null && _a !== void 0 ? _a : '')}</span> <span class="_type">${encodeEntities((_b = settingObj.type.raw) !== null && _b !== void 0 ? _b : '')}</span>`);
+                result.push(`<p class="_description">${settingObj.description}</p>`);
+                result.push('</li>');
             });
+            result.push('</ol>');
             result.push('</div>');
         }
         if (docmapObj.todo) {

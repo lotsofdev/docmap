@@ -2,6 +2,8 @@
 
 import { __getConfig } from '@lotsof/config';
 
+import { __encodeEntities } from '@lotsof/sugar/html';
+
 import type { IDocblockSettings } from '@lotsof/docblock';
 import __Docblock from '@lotsof/docblock';
 import { __composerJsonSync } from '@lotsof/sugar/composer';
@@ -902,18 +904,23 @@ class Docmap implements IDocmap {
   toMdx(docmapObj: IDocmapObj): string {
     const result: string[] = [];
 
-    if (docmapObj.name === 'media') {
-      console.log(docmapObj);
+    function encodeEntities(str: string): string {
+      if (typeof str !== 'string') {
+        str = `${str}`;
+      }
+      return __encodeEntities(str);
     }
 
     result.push('---');
     result.push(`title: '${docmapObj.name}'`);
     result.push(`namespace: '${docmapObj.namespace}'`);
-    if (docmapObj.description) {
-      result.push(`description: ${docmapObj.description.trim}`);
-    }
+    // if (docmapObj.description) {
+    //   result.push(
+    //     `description: '${docmapObj.description.split('\n').join(' ')}'`,
+    //   );
+    // }
     if (docmapObj.type) {
-      result.push(`type: '${docmapObj.type.raw ?? docmapObj.type}'`);
+      result.push(`type: '${encodeEntities(docmapObj.type.raw ?? '')}'`);
     }
     if (docmapObj.status) {
       result.push(`status: '${docmapObj.status}'`);
@@ -949,9 +956,9 @@ class Docmap implements IDocmap {
     }
     if (docmapObj.type) {
       result.push(
-        `<div class="_type"><span class="_type-label">Type:</span><span class="_type-value">${
-          docmapObj.type.raw ?? docmapObj.type
-        }</span></div>`,
+        `<div class="_type"><span class="_type-label">Type:</span><span class="_type-value">${encodeEntities(
+          docmapObj.type.raw ?? docmapObj.type ?? '',
+        )}</span></div>`,
       );
     }
     if (docmapObj.status) {
@@ -966,9 +973,11 @@ class Docmap implements IDocmap {
     }
     if (docmapObj.platform) {
       result.push(
-        `<div class="_platform"><span class="_platform-label">Platform:</span>${docmapObj.platform.map(
-          (p) => `<span class="_platform-value">${p.name}</span>`,
-        )}</div>`,
+        `<div class="_platform"><span class="_platform-label">Platform:</span>${docmapObj.platform
+          .map(
+            (p) => `<span class="_platform-value -${p.name}">${p.name}</span>`,
+          )
+          .join('')}</div>`,
       );
     }
     if (docmapObj.status || docmapObj.since || docmapObj.platform) {
@@ -995,11 +1004,17 @@ class Docmap implements IDocmap {
             paramObj.default === undefined
               ? '<span class="_required">*</span>'
               : ''
-          }</span><span class="_default">${
-            paramObj.default ?? ''
-          }</span> <span class="_type">${paramObj.type.raw}</span>`,
+          }</span><span class="_default">${encodeEntities(
+            paramObj.default ?? '',
+          )}</span> <span class="_type">${encodeEntities(
+            paramObj.type.raw ?? '',
+          )}</span>`,
         );
-        result.push(`<p class="_description">${paramObj.description}</p>`);
+        result.push(
+          `<p class="_description">${encodeEntities(
+            paramObj.description ?? '',
+          )}</p>`,
+        );
         result.push('</li>');
       });
       result.push('</ol>');
@@ -1019,7 +1034,9 @@ class Docmap implements IDocmap {
           docmapObj.return.description
         }</span><span class="_default">${
           docmapObj.return.default ?? ''
-        }</span><span class="_type">${docmapObj.return.type.raw}</span>`,
+        }</span><span class="_type">${encodeEntities(
+          docmapObj.return.type.raw ?? '',
+        )}</span>`,
       );
       result.push('</li>');
       result.push('</ol>');
@@ -1042,19 +1059,26 @@ ${exampleObj.code}
 
     if (docmapObj.setting) {
       result.push('<div class="_settings">');
-
       result.push('## Settings');
+
+      result.push(`<ol class="_list">`);
       Object.entries(docmapObj.setting).forEach(([id, settingObj], i) => {
+        result.push('<li class="_item">');
         result.push(
-          `${i + 1}. <span class="_name">${settingObj.name}${
+          `<span class="_name">${settingObj.name}${
             settingObj.default === undefined
               ? '<span class="_required">*</span>'
               : ''
-          }</span><span class="_default">${
-            settingObj.default ?? ''
-          }</span> <span class="_type">${settingObj.type.raw}</span>`,
+          }</span><span class="_default">${encodeEntities(
+            settingObj.default ?? '',
+          )}</span> <span class="_type">${encodeEntities(
+            settingObj.type.raw ?? '',
+          )}</span>`,
         );
+        result.push(`<p class="_description">${settingObj.description}</p>`);
+        result.push('</li>');
       });
+      result.push('</ol>');
 
       result.push('</div>');
     }

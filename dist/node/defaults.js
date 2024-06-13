@@ -39,7 +39,7 @@ export default {
         ],
         exclude: [],
         excludeByTags: {
-            status: [/^(?!stable)([a-z0-9]+)$/],
+            status: [/^(?!stable|beta)([a-z0-9]+)$/],
             type: [/^CssClass$/],
         },
         tags: [
