@@ -16,8 +16,8 @@ import { __checkPathWithMultipleExtensions, __fileName, __folderPath, __readJson
 import { __writeJsonSync } from '@lotsof/sugar/fs';
 import { __deepFilter, __deepMap, __deepMerge, __get, __set, __sort, __sortDeep, } from '@lotsof/sugar/object';
 import __defaults from './defaults.js';
-import { __packageJsonSync, __packageMetasSync } from '@lotsof/sugar/package';
-import { __packageRootDir } from '@lotsof/sugar/path';
+import { __packageJsonSync } from '@lotsof/sugar/package';
+import { __packageRootDir } from '@lotsof/sugar/package';
 import { globSync as __globSync } from 'glob';
 import { __namespaceCompliant } from '@lotsof/sugar/string';
 import __fs from 'fs';
@@ -161,7 +161,7 @@ class Docmap {
                 // read the docmap file
                 const docmapJson = __readJsonSync(currentPathDocmapJsonPath);
                 // get package metas
-                const packageMetas = __packageMetasSync(packageRootPath);
+                const packageMetas = __packageJsonSync(packageRootPath);
                 Object.keys(docmapJson.map).forEach((namespace) => {
                     if (docmapJson.map[namespace]) {
                         docmapJson.map[namespace].isDependency = isDependency;
