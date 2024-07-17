@@ -143,7 +143,7 @@ class Docmap {
                 menu: {},
             };
             const loadJson = (packageNameOrPath_1, ...args_1) => __awaiter(this, [packageNameOrPath_1, ...args_1], void 0, function* (packageNameOrPath, type = 'npm', isDependency = false) {
-                var _f, _g, _h, _j, _k, _l;
+                var _a, _b, _c, _d, _e, _f;
                 let currentPathDocmapJsonPath, potentialPackageDocmapJsonPath = __path.resolve(docmapRootPath, type === 'npm' ? 'node_modules' : 'vendor', packageNameOrPath, 'docmap.json'), potentialRootPackageDocmapJsonPath = __path.resolve(packageMonoRoot, type === 'npm' ? 'node_modules' : 'vendor', packageNameOrPath, 'docmap.json');
                 if (__fs.existsSync(potentialPackageDocmapJsonPath)) {
                     currentPathDocmapJsonPath = potentialPackageDocmapJsonPath;
@@ -168,14 +168,14 @@ class Docmap {
                         docmapJson.map[namespace].package = packageMetas;
                     }
                 });
-                Object.keys((_g = (_f = docmapJson.generated) === null || _f === void 0 ? void 0 : _f.map) !== null && _g !== void 0 ? _g : []).forEach((namespace) => {
+                Object.keys((_b = (_a = docmapJson.generated) === null || _a === void 0 ? void 0 : _a.map) !== null && _b !== void 0 ? _b : []).forEach((namespace) => {
                     if (docmapJson.generated.map[namespace]) {
                         docmapJson.generated.map[namespace].isDependency = isDependency;
                         docmapJson.generated.map[namespace].package = packageMetas;
                     }
                 });
                 // add the readed docmap to the existing one
-                docmapJson.map = Object.assign(Object.assign({}, ((_h = docmapJson.map) !== null && _h !== void 0 ? _h : {})), ((_k = (_j = docmapJson.generated) === null || _j === void 0 ? void 0 : _j.map) !== null && _k !== void 0 ? _k : {}));
+                docmapJson.map = Object.assign(Object.assign({}, ((_c = docmapJson.map) !== null && _c !== void 0 ? _c : {})), ((_e = (_d = docmapJson.generated) === null || _d === void 0 ? void 0 : _d.map) !== null && _e !== void 0 ? _e : {}));
                 // clean
                 delete docmapJson.generated;
                 // resolve the actual docmap "path"
@@ -186,7 +186,7 @@ class Docmap {
                     // checking ".dev...."
                     let ext = obj.relPath.split('.').pop();
                     obj.path =
-                        (_l = __checkPathWithMultipleExtensions(obj.path, [`dev.${ext}`, ext])) !== null && _l !== void 0 ? _l : obj.path;
+                        (_f = __checkPathWithMultipleExtensions(obj.path, [`dev.${ext}`, ext])) !== null && _f !== void 0 ? _f : obj.path;
                     docmapJson.map[namespace] = obj;
                 }
                 for (let [namespace, docmapObj] of Object.entries(docmapJson.map)) {
@@ -458,7 +458,7 @@ class Docmap {
         const finalParams = __deepMerge(__defaults.build, (_a = __getConfig('docmap.build')) !== null && _a !== void 0 ? _a : {}, params !== null && params !== void 0 ? params : {});
         console.log(finalParams);
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-            var _b, _c, _d;
+            var _a, _b, _c;
             let docmapJson = {
                 map: {},
                 generated: {
@@ -506,7 +506,7 @@ class Docmap {
                 console.log(`<yellow>[build]</yellow> Parsing file "<cyan>${__path.relative(__packageRootDir(), 
                 // @ts-ignore
                 filePath)}</cyan>"`);
-                const docblocksInstance = new __Docblock(filePath, Object.assign(Object.assign({}, ((_c = (_b = this.settings.docblock) === null || _b === void 0 ? void 0 : _b.settings) !== null && _c !== void 0 ? _c : {})), { filepath: filePath }));
+                const docblocksInstance = new __Docblock(filePath, Object.assign(Object.assign({}, ((_b = (_a = this.settings.docblock) === null || _a === void 0 ? void 0 : _a.settings) !== null && _b !== void 0 ? _b : {})), { filepath: filePath }));
                 yield docblocksInstance.parse();
                 const docblocks = docblocksInstance.toObject();
                 if (!docblocks || !docblocks.length)
@@ -534,7 +534,7 @@ class Docmap {
                         // if the "toString" method is a custom one
                         // calling it to have the proper string value back
                         if (typeof value !== 'string' &&
-                            ((_d = value.toString) === null || _d === void 0 ? void 0 : _d.call(value)) !== '[object Object]') {
+                            ((_c = value.toString) === null || _c === void 0 ? void 0 : _c.call(value)) !== '[object Object]') {
                             value = value.toString();
                         }
                         // check if the value match the filter or not
