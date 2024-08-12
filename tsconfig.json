@@ -1,5 +1,11 @@
 {
-  "exclude": ["lotsof.config.ts", "./dist/**/*"],
+  "exclude": [
+    "lotsof.config.ts",
+    "**/*.test.*",
+    "dist/**/*",
+    "node_modules/**/*",
+    "vendor/**/*"
+  ],
   "compilerOptions": {
     "noImplicitAny": false,
     "rootDir": "src/node",

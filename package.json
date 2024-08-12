@@ -16,8 +16,8 @@
     "micromatch": "^4.0.5",
     "typescript": "^5.4.5"
   },
-  "main": "dist/node/exports.js",
-  "module": "dist/node/exports.js",
-  "types": "src/node/exports.ts",
+  "main": "dist/node/_exports.js",
+  "module": "dist/node/_exports.js",
+  "types": "src/node/_exports.ts",
   "homepage": "https://lotsof.dev"
 }
