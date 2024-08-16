@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import type { IDocmapConfig } from './types.js';
+import type { TDocmapConfig } from './types.js';
 
 import { __commonTextFileExtensions } from '@lotsof/sugar/extension';
 
@@ -80,4 +80,4 @@ export default {
     clear: true,
   },
   search: {},
-} as IDocmapConfig;
+} as TDocmapConfig;

@@ -16,8 +16,7 @@ import { __checkPathWithMultipleExtensions, __fileName, __folderPath, __readJson
 import { __writeJsonSync } from '@lotsof/sugar/fs';
 import { __deepFilter, __deepMap, __deepMerge, __get, __set, __sort, __sortDeep, } from '@lotsof/sugar/object';
 import __defaults from './defaults.js';
-import { __packageJsonSync } from '@lotsof/sugar/package';
-import { __packageRootDir } from '@lotsof/sugar/package';
+import { __packageJsonSync, __packageRootDir } from '@lotsof/sugar/package';
 import { globSync as __globSync } from 'glob';
 import { __namespaceCompliant } from '@lotsof/sugar/string';
 import __fs from 'fs';
@@ -38,8 +37,8 @@ function __toLowerCase(l = '') {
  *
  * @param           {Object}        [settings={}]           An object of settings to configure your docmap instance
  *
- * @setting         {Record<String, IDocmapCustomMenuSettingFn>}       [customMenu={}]         Specify some custom menus you want to extract from the docmap.
- * @setting         {Record<String, IDocmapTagProxyFn>}                [tagsProxy={}]          Specify some tags proxy to transform some tags values at BUILD process.
+ * @setting         {Record<String, TDocmapCustomMenuSettingFn>}       [customMenu={}]         Specify some custom menus you want to extract from the docmap.
+ * @setting         {Record<String, TDocmapTagProxyFn>}                [tagsProxy={}]          Specify some tags proxy to transform some tags values at BUILD process.
  *
  * @todo      interface
  * @todo      doc
@@ -65,7 +64,7 @@ class Docmap {
      * This static method allows you to register a tag proxy for all the Docmap instances
      *
      * @param               {String}            tag           The tag you want to proxy
-     * @param               {IDocmapTagProxyFn}      processor       The processor function
+     * @param               {TDocmapTagProxyFn}      processor       The processor function
      *
      * @since           2.0.0
      * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
@@ -87,7 +86,7 @@ class Docmap {
         var _a;
         /**
          * @name          _entries
-         * @type           IDocmapEntries
+         * @type           TDocmapEntries
          * @private
          *
          * This store the docmap.json entries
@@ -111,8 +110,8 @@ class Docmap {
      * @todo      update documentation
      * @todo      integrate the "cache" feature
      *
-     * @param       {IDocmapReadParams}            [params=null]       An IDocmapReadParams object to configure your read process
-     * @return      {Promise<IDocmapObj>}                          A promise instance that will be resolved once the docmap.json file(s) have been correctly read
+     * @param       {TDocmapReadParams}            [params=null]       An TDocmapReadParams object to configure your read process
+     * @return      {Promise<TDocmapObj>}                          A promise instance that will be resolved once the docmap.json file(s) have been correctly read
      *
      * @since       2.0.0
      * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
@@ -265,8 +264,8 @@ class Docmap {
      * This methodallows you to search for an docmap item by it's slug.
      * You can specify if you want to search also in the "packages" section or not
      *
-     * @param           {IDocmapSearchParams}      params          Some params to configure your search
-     * @return        {IDocmapSearchResult}                        The result of your search
+     * @param           {TDocmapSearchParams}      params          Some params to configure your search
+     * @return        {TDocmapSearchResult}                        The result of your search
      *
      * @since       2.0.0
      * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
@@ -447,7 +446,7 @@ class Docmap {
      * This method allows you to specify one or more glob patterns to scan files for "@namespace" docblock tags
      * and extract all the necessary informations to build the docmap.json file
      *
-     * @param         {Partial<IDocmapBuildParams>}          params        The params to use to build your docmap
+     * @param         {Partial<TDocmapBuildParams>}          params        The params to use to build your docmap
      * @return        {Promise}                                     A promise resolved once the scan process has been finished
      *
      * @since         2.0.0

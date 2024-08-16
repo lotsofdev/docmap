@@ -4,7 +4,7 @@ import { __getConfig } from '@lotsof/config';
 
 import { __encodeEntities } from '@lotsof/sugar/html';
 
-import type { IDocblockSettings } from '@lotsof/docblock';
+import type { TDocblockSettings } from '@lotsof/docblock';
 import __Docblock from '@lotsof/docblock';
 import { __composerJsonSync } from '@lotsof/sugar/composer';
 import {
@@ -29,8 +29,7 @@ import {
 
 import __defaults from './defaults.js';
 
-import { __packageJsonSync, __packageMetasSync } from '@lotsof/sugar/package';
-import { __packageRootDir } from '@lotsof/sugar/package';
+import { __packageJsonSync, __packageRootDir } from '@lotsof/sugar/package';
 import { globSync as __globSync } from 'glob';
 
 import { __namespaceCompliant } from '@lotsof/sugar/string';
@@ -43,17 +42,17 @@ function __toLowerCase(l = '') {
 }
 
 import type {
-  IDocmap,
-  IDocmapBuildParams,
-  IDocmapEntries,
-  IDocmapEntry,
-  IDocmapMenuObj,
-  IDocmapObj,
-  IDocmapReadParams,
-  IDocmapSearchParams,
-  IDocmapSearchResult,
-  IDocmapSettings,
-  IDocmapTagProxyFn,
+  TDocmap,
+  TDocmapBuildParams,
+  TDocmapEntries,
+  TDocmapEntry,
+  TDocmapMenuObj,
+  TDocmapObj,
+  TDocmapReadParams,
+  TDocmapSearchParams,
+  TDocmapSearchResult,
+  TDocmapSettings,
+  TDocmapTagProxyFn,
 } from './types';
 
 /**
@@ -68,8 +67,8 @@ import type {
  *
  * @param           {Object}        [settings={}]           An object of settings to configure your docmap instance
  *
- * @setting         {Record<String, IDocmapCustomMenuSettingFn>}       [customMenu={}]         Specify some custom menus you want to extract from the docmap.
- * @setting         {Record<String, IDocmapTagProxyFn>}                [tagsProxy={}]          Specify some tags proxy to transform some tags values at BUILD process.
+ * @setting         {Record<String, TDocmapCustomMenuSettingFn>}       [customMenu={}]         Specify some custom menus you want to extract from the docmap.
+ * @setting         {Record<String, TDocmapTagProxyFn>}                [tagsProxy={}]          Specify some tags proxy to transform some tags values at BUILD process.
  *
  * @todo      interface
  * @todo      doc
@@ -87,7 +86,7 @@ import type {
  * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
  */
 
-class Docmap implements IDocmap {
+class Docmap implements TDocmap {
   static _cachedDocmapJson = {};
 
   static _registeredTagsProxy = {};
@@ -99,18 +98,18 @@ class Docmap implements IDocmap {
    * This static method allows you to register a tag proxy for all the Docmap instances
    *
    * @param               {String}            tag           The tag you want to proxy
-   * @param               {IDocmapTagProxyFn}      processor       The processor function
+   * @param               {TDocmapTagProxyFn}      processor       The processor function
    *
    * @since           2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  static registerTagProxy(tag: string, processor: IDocmapTagProxyFn): any {
+  static registerTagProxy(tag: string, processor: TDocmapTagProxyFn): any {
     this._registeredTagsProxy[tag] = processor;
   }
 
   /**
    * @name          settings
-   * @type         IDocmapSettings
+   * @type         TDocmapSettings
    * @public
    *
    * Store the settings
@@ -118,11 +117,11 @@ class Docmap implements IDocmap {
    * @since      2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  settings: IDocmapSettings;
+  settings: TDocmapSettings;
 
   /**
    * @name          _entries
-   * @type           IDocmapEntries
+   * @type           TDocmapEntries
    * @private
    *
    * This store the docmap.json entries
@@ -130,7 +129,7 @@ class Docmap implements IDocmap {
    * @since         2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  _entries: IDocmapEntries = {};
+  _entries: TDocmapEntries = {};
 
   /**
    * @name    _docmapJson
@@ -154,7 +153,7 @@ class Docmap implements IDocmap {
    * @since       2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  constructor(settings?: Partial<IDocmapSettings>) {
+  constructor(settings?: Partial<TDocmapSettings>) {
     this.settings = __deepMerge(
       __defaults.settings,
       __getConfig('docmap.settings') ?? {},
@@ -179,15 +178,15 @@ class Docmap implements IDocmap {
    * @todo      update documentation
    * @todo      integrate the "cache" feature
    *
-   * @param       {IDocmapReadParams}            [params=null]       An IDocmapReadParams object to configure your read process
-   * @return      {Promise<IDocmapObj>}                          A promise instance that will be resolved once the docmap.json file(s) have been correctly read
+   * @param       {TDocmapReadParams}            [params=null]       An TDocmapReadParams object to configure your read process
+   * @return      {Promise<TDocmapObj>}                          A promise instance that will be resolved once the docmap.json file(s) have been correctly read
    *
    * @since       2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  read(params?: Partial<IDocmapReadParams>): Promise<IDocmapObj> {
+  read(params?: Partial<TDocmapReadParams>): Promise<TDocmapObj> {
     return new Promise(async (resolve) => {
-      const finalParams: IDocmapReadParams = __deepMerge(
+      const finalParams: TDocmapReadParams = __deepMerge(
         __defaults.read,
         __getConfig('docmap.read') ?? {},
         params ?? {},
@@ -216,7 +215,7 @@ class Docmap implements IDocmap {
         highest: true,
       });
 
-      const finalDocmapJson: IDocmapObj = {
+      const finalDocmapJson: TDocmapObj = {
         map: {},
         menu: {},
       };
@@ -301,7 +300,7 @@ class Docmap implements IDocmap {
         for (let [namespace, docmapObj] of Object.entries(docmapJson.map)) {
           let blockId = namespace;
           if (!finalDocmapJson.map[blockId]) {
-            const docmapEntry: IDocmapEntry = docmapObj as IDocmapEntry;
+            const docmapEntry: TDocmapEntry = docmapObj as TDocmapEntry;
 
             // assigning an id to the block.
             // This id is the string used as map property to store the block
@@ -379,7 +378,7 @@ class Docmap implements IDocmap {
       for (let [id, docmapObj] of Object.entries(finalDocmapJson.map)) {
         if (docmapObj.path) {
           docmapObj.parseDocblocksFromSourceFile = async (
-            settings?: IDocblockSettings,
+            settings?: TDocblockSettings,
           ) => {
             const docblock = new __Docblock(docmapObj.path, settings);
             await docblock.parse();
@@ -400,15 +399,15 @@ class Docmap implements IDocmap {
    * This methodallows you to search for an docmap item by it's slug.
    * You can specify if you want to search also in the "packages" section or not
    *
-   * @param           {IDocmapSearchParams}      params          Some params to configure your search
-   * @return        {IDocmapSearchResult}                        The result of your search
+   * @param           {TDocmapSearchParams}      params          Some params to configure your search
+   * @return        {TDocmapSearchResult}                        The result of your search
    *
    * @since       2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  search(params?: Partial<IDocmapSearchParams>): Promise<IDocmapSearchResult> {
+  search(params?: Partial<TDocmapSearchParams>): Promise<TDocmapSearchResult> {
     return new Promise(async (resolve) => {
-      const finalParams: IDocmapSearchParams = __deepMerge(
+      const finalParams: TDocmapSearchParams = __deepMerge(
         __defaults.search,
         __getConfig('docmap.search') ?? {},
         params ?? {},
@@ -416,7 +415,7 @@ class Docmap implements IDocmap {
 
       const docmapJson = await this.read(finalParams);
 
-      const result: IDocmapSearchResult = {
+      const result: TDocmapSearchResult = {
         search: finalParams,
         items: {},
       };
@@ -481,8 +480,8 @@ class Docmap implements IDocmap {
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
   _extractMenu(
-    docmapJson: Partial<IDocmapObj> = this._docmapJson,
-  ): IDocmapMenuObj {
+    docmapJson: Partial<TDocmapObj> = this._docmapJson,
+  ): TDocmapMenuObj {
     const docmapJsonMenuByPackage = {};
 
     // split menus by packages
@@ -497,7 +496,7 @@ class Docmap implements IDocmap {
       docmapJsonMenuByPackage[docmapObj.package.name].push(docmapObj);
     });
 
-    let finalMenu: IDocmapMenuObj = {
+    let finalMenu: TDocmapMenuObj = {
       packages: {},
       tree: {},
       slug: {},
@@ -639,14 +638,14 @@ class Docmap implements IDocmap {
    * This method allows you to specify one or more glob patterns to scan files for "@namespace" docblock tags
    * and extract all the necessary informations to build the docmap.json file
    *
-   * @param         {Partial<IDocmapBuildParams>}          params        The params to use to build your docmap
+   * @param         {Partial<TDocmapBuildParams>}          params        The params to use to build your docmap
    * @return        {Promise}                                     A promise resolved once the scan process has been finished
    *
    * @since         2.0.0
    * @author         Olivier Bossel <olivier.bossel@gmail.com> (https://coffeekraken.io)
    */
-  build(params?: Partial<IDocmapBuildParams>): Promise<any> {
-    const finalParams: IDocmapBuildParams = __deepMerge(
+  build(params?: Partial<TDocmapBuildParams>): Promise<any> {
+    const finalParams: TDocmapBuildParams = __deepMerge(
       __defaults.build,
       __getConfig('docmap.build') ?? {},
       params ?? {},
@@ -790,7 +789,7 @@ class Docmap implements IDocmap {
           // const path = __path.relative(outputDir, filepath);
           const filename = __fileName(filePath);
 
-          const docblockEntryObj: IDocmapEntry = {
+          const docblockEntryObj: TDocmapEntry = {
             id: 'undefined',
           };
 
@@ -901,7 +900,7 @@ class Docmap implements IDocmap {
     });
   }
 
-  toMdx(docmapObj: IDocmapObj): string {
+  toMdx(docmapObj: TDocmapObj): string {
     const result: string[] = [];
 
     function encodeEntities(str: string): string {

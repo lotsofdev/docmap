@@ -1,51 +1,51 @@
-import type { IDocblockSettings, IDocblockBlock } from '@lotsof/docblock';
+import type { TDocblockBlock, TDocblockSettings } from '@lotsof/docblock';
 
-export interface IDocmapConfig {
-  settings: IDocmapSettings;
-  read: IDocmapReadParams;
-  build: IDocmapBuildParams;
-  search: IDocmapSearchParams;
-}
+export type TDocmapConfig = {
+  settings: TDocmapSettings;
+  read: TDocmapReadParams;
+  build: TDocmapBuildParams;
+  search: TDocmapSearchParams;
+};
 
-export type IDocmapBuildOutPathParam =
+export type TDocmapBuildOutPathParam =
   | string
-  | ((docmapObj: IDocmapObj, settings: IDocmapSettings) => string);
+  | ((docmapObj: TDocmapObj, settings: TDocmapSettings) => string);
 
-export interface IDocmapBuildParams {
+export type TDocmapBuildParams = {
   globs: string[];
   exclude: string[];
   excludeByTags: Record<string, RegExp[]>;
   tags: string[];
   save: boolean;
-  outPath: IDocmapBuildOutPathParam;
+  outPath: TDocmapBuildOutPathParam;
   outDir?: string;
   mdx?: boolean;
   json?: boolean;
   clear?: boolean;
-}
+};
 
-export interface IDocmapReadParams {
+export type TDocmapReadParams = {
   input: string;
   dependencies: boolean;
   sort: string[];
   sortDeep: string[];
-}
+};
 
-export interface IDocmapTagProxyFn {
+export type TDocmapTagProxyFn = {
   (data: any): any;
-}
+};
 
-export interface IDocmapCustomMenuSettingFn {
-  (menuItem: IDocmapMenuObjItem): boolean;
-}
+export type TDocmapCustomMenuSettingFn = {
+  (menuItem: TDocmapMenuObjItem): boolean;
+};
 
-export interface IDocmapSettings {
-  customMenu: Record<string, IDocmapCustomMenuSettingFn>;
-  tagsProxy: Record<string, IDocmapTagProxyFn>;
-  docblock?: IDocblockSettings;
-}
+export type TDocmapSettings = {
+  customMenu: Record<string, TDocmapCustomMenuSettingFn>;
+  tagsProxy: Record<string, TDocmapTagProxyFn>;
+  docblock?: TDocblockSettings;
+};
 
-export interface IDocmapEntry {
+export type TDocmapEntry = {
   id: string;
   path?: string;
   name?: string;
@@ -64,44 +64,44 @@ export interface IDocmapEntry {
   package?: any;
   menu?: any;
   parseDocblocksFromSourceFile?(
-    settings?: IDocblockSettings,
-  ): Promise<IDocblockBlock[]>;
-}
-export interface IDocmapEntries {
-  [key: string]: IDocmapEntry;
-}
+    settings?: TDocblockSettings,
+  ): Promise<TDocblockBlock[]>;
+};
+export type TDocmapEntries = {
+  [key: string]: TDocmapEntry;
+};
 
-export interface IDocmapMenuObjItem {
+export type TDocmapMenuObjItem = {
   name: any;
   slug: any;
-  [key: string]: Partial<IDocmapMenuObjItem>;
-}
+  [key: string]: Partial<TDocmapMenuObjItem>;
+};
 
-export interface IDocmapMenuObj {
-  packages: Record<string, Partial<IDocmapMenuObjItem>>;
-  tree: Record<string, Partial<IDocmapMenuObjItem>>;
-  slug: Record<string, Partial<IDocmapMenuObjItem>>;
-  custom: Record<string, Partial<IDocmapMenuObjItem>>;
-}
+export type TDocmapMenuObj = {
+  packages: Record<string, Partial<TDocmapMenuObjItem>>;
+  tree: Record<string, Partial<TDocmapMenuObjItem>>;
+  slug: Record<string, Partial<TDocmapMenuObjItem>>;
+  custom: Record<string, Partial<TDocmapMenuObjItem>>;
+};
 
-export interface IDocmapSearchParams {
+export type TDocmapSearchParams = {
   slug: string;
   namespace: string;
   dependencies: boolean;
   type: string;
   id: string;
-}
+};
 
-export interface IDocmapSearchResult {
-  search: Partial<IDocmapSearchParams>;
-  items: IDocmapEntries;
-}
+export type TDocmapSearchResult = {
+  search: Partial<TDocmapSearchParams>;
+  items: TDocmapEntries;
+};
 
-export interface IDocmapObj {
-  map: IDocmapEntries;
-  menu: Partial<IDocmapMenuObj>;
-}
+export type TDocmapObj = {
+  map: TDocmapEntries;
+  menu: Partial<TDocmapMenuObj>;
+};
 
-export interface IDocmap {
-  _entries: IDocmapEntries;
-}
+export type TDocmap = {
+  _entries: TDocmapEntries;
+};
